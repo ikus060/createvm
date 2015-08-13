@@ -32,5 +32,9 @@ APT::Periodic::Download-Upgradeable-Packages "1";
 //APT::Periodic::AutocleanInterval "7";
 EOL
 
+# Disable cdrom repo in apt config
+sed -i 's/^deb cdrom$/# deb cdrom/' /etc/apt/sources.list
+
 # clean up
+apt-get update
 apt-get clean

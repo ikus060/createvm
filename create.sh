@@ -18,6 +18,7 @@ DOMAIN=""
 IP=""
 MASK="255.255.255.0"
 GW="192.168.14.1"
+DEBIAN="jessie"
 
 # location, location, location
 FOLDER_BASE=$(pwd)
@@ -29,7 +30,7 @@ FOLDER_VBOX="$HOME/VirtualBox VMs"
 FOLDER_ISO_CUSTOM="${FOLDER_BUILD}/iso/custom"
 FOLDER_ISO_INITRD="${FOLDER_BUILD}/iso/initrd"
 
-RESULT=`getopt --name "$SCRIPT" --options "h,b:,i:,d:" --longoptions "help,box:,domain:,ip:,mask:,gw:,memory:,disk:,dest:,iso:" -- "$@"`
+RESULT=`getopt --name "$SCRIPT" --options "h,b:,i:,d:" --longoptions "help,box:,domain:,ip:,mask:,gw:,memory:,disk:,dest:,iso:,debian:" -- "$@"`
 eval set -- "$RESULT"
 while [ $# -gt 0 ] ; do
   case "$1" in
@@ -46,6 +47,7 @@ Used to create virtual machine.
   --disk=size           the disk size in MiB. (default: $DISK)
   -d, --dest=folder     the virtual box destination (default: $FOLDER_VBOX)
   --iso=folder          where to download iso files (default: $FOLDER_ISO)
+  --debian=version      the debian version: wheezy or jessie (default: $DEBIAN)
 "
       exit 0;;
     -b | --box)
@@ -75,6 +77,9 @@ Used to create virtual machine.
      --iso)
       shift
       FOLDER_ISO=$1;;
+     --debian)
+      shift
+      DEBIAN=$1;;
     --)
       shift
       break;;
@@ -112,8 +117,13 @@ set -o xtrace
 
 # Configurations
 
-ISO_URL="http://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-8.1.0-amd64-CD-1.iso"
-ISO_MD5="4af143814e0b0ab623289222eddb280d"
+if [ "x$DEBIAN" == "xwheezy" ]; then
+  ISO_URL="http://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-8.1.0-amd64-CD-1.iso"
+  ISO_MD5="4af143814e0b0ab623289222eddb280d"
+elif [ "x$DEBIAN" == "xjessie" ]; then
+  ISO_URL="http://cdimage.debian.org/mirror/cdimage/archive/7.8.0/amd64/iso-cd/debian-7.8.0-amd64-CD-1.iso"
+  ISO_MD5="0e3d2e7bc3cd7c97f76a4ee8fb335e43"
+fi
 
 # Env option: Use headless mode or GUI
 VM_GUI="${VM_GUI:-}"
@@ -134,6 +144,7 @@ sed -i -e "s/\${domain}/$DOMAIN/" "$PRESEED"
 sed -i -e "s/\${ip}/$IP/" "$PRESEED"
 sed -i -e "s/\${mask}/$MASK/" "$PRESEED"
 sed -i -e "s/\${gw}/$GW/" "$PRESEED"
+sed -i -e "s/\${debian}/$DEBIAN/" "$PRESEED"
 
 # Env option: Use custom late_command.sh or default
 DEFAULT_LATE_CMD="${FOLDER_BASE}/late_command.sh"

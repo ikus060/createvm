@@ -15,22 +15,17 @@ This script will:
 
 ## Usage on Linux
 
-    ./build.sh
+    ./build.sh --box computername --ip 192.168.14.25
 
 This should do everything you need. If you don't have `mkisofs` or `p7zip`:
 
     sudo apt-get install genisoimage p7zip-full curl
 
-## Environment variables
+## Access VM
 
-You can affect the default behaviour of the script using environment variables:
+You may then access the virtual machin via SSH.
+ * username: debian
+ * password: debian
 
-    VAR=value ./build.sh
 
-The following variables are supported:
 
-* `PRESEED` — path to custom preseed file. May be useful when if you need some customizations for your private base box (user name, passwords etc.);
-
-* `LATE_CMD` — path to custom late_command.sh. May be useful when if you need some customizations for your private base box (user name, passwords etc.);
-
-* `VM_GUI` — if set to `yes` or `1`, disables headless mode for vm. May be useful for debugging installer;
