@@ -290,7 +290,8 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>&1; then
     --boot4 none \
     --vram 12 \
     --pae off \
-    --rtcuseutc on
+    --rtcuseutc on \
+    --largepages
 
   VBoxManage storagectl "${BOX}" \
     --name "IDE Controller" \
