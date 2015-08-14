@@ -4,7 +4,7 @@
 echo "UseDNS no" >> /etc/ssh/sshd_config
 
 # Display login promt after boot -- skip GRUB
-sed "s/quiet splash//" /etc/default/grub > /tmp/grub
+sed 's/GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="elevator=noop"/' /etc/default/grub > /tmp/grub
 sed "s/GRUB_TIMEOUT=[0-9]/GRUB_TIMEOUT=0/" /tmp/grub > /etc/default/grub
 update-grub
 
