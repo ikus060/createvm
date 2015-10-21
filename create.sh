@@ -118,11 +118,11 @@ set -o xtrace
 # Configurations
 
 if [ "x$DEBIAN" == "xwheezy" ]; then
-  ISO_URL="http://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-8.1.0-amd64-CD-1.iso"
-  ISO_MD5="4af143814e0b0ab623289222eddb280d"
-elif [ "x$DEBIAN" == "xjessie" ]; then
   ISO_URL="http://cdimage.debian.org/mirror/cdimage/archive/7.8.0/amd64/iso-cd/debian-7.8.0-amd64-CD-1.iso"
   ISO_MD5="0e3d2e7bc3cd7c97f76a4ee8fb335e43"
+elif [ "x$DEBIAN" == "xjessie" ]; then
+  ISO_URL="http://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-8.1.0-amd64-CD-1.iso"
+  ISO_MD5="4af143814e0b0ab623289222eddb280d"
 fi
 
 # Env option: Use headless mode or GUI
@@ -290,8 +290,7 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>&1; then
     --boot4 none \
     --vram 12 \
     --pae off \
-    --rtcuseutc on \
-    --largepages
+    --rtcuseutc on
 
   VBoxManage storagectl "${BOX}" \
     --name "IDE Controller" \
