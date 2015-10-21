@@ -4,7 +4,7 @@
 echo "UseDNS no" >> /etc/ssh/sshd_config
 
 # Display login promt after boot -- skip GRUB
-sed 's/GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="elevator=noop"/' /etc/default/grub > /tmp/grub
+sed "s/quiet splash//" /etc/default/grub > /tmp/grub
 sed "s/GRUB_TIMEOUT=[0-9]/GRUB_TIMEOUT=0/" /tmp/grub > /etc/default/grub
 update-grub
 
@@ -33,7 +33,7 @@ APT::Periodic::Download-Upgradeable-Packages "1";
 EOL
 
 # Disable cdrom repo in apt config
-sed -i 's/^deb cdrom$/# deb cdrom/' /etc/apt/sources.list
+sed -i 's/^deb cdrom/# deb cdrom/' /etc/apt/sources.list
 
 # clean up
 apt-get update
