@@ -5,6 +5,7 @@
 # Modify: Patrik Dufresne
 #
 declare -rx PROGNAME=${0##*/}
+declare -rx PROGPATH=${0%/*}/
 VERSION="1.0"
 AUTHOR="Patrik Dufresne"
 
@@ -17,7 +18,7 @@ DEBIAN="jessie"
 # location, location, location
 FOLDER_BASE="/tmp"
 FOLDER_ISO="/var/lib/vz/template/iso/"
-FOLDER_BUILD="${FOLDER_BASE}/build"
+FOLDER_BUILD="${TARGET}/build"
 FOLDER_ISO_CUSTOM="${FOLDER_BUILD}/iso/custom"
 FOLDER_ISO_INITRD="${FOLDER_BUILD}/iso/initrd"
 
@@ -173,7 +174,7 @@ if [ ! -e "${FOLDER_ISO}/${ISO_CUSTOM_FILENAME}" ]; then
   cd "${FOLDER_BASE}"
   chmod u+w "${FOLDER_ISO_CUSTOM}/isolinux" "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.cfg"
   rm "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.cfg"
-  cp isolinux.cfg "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.cfg"
+  cp "${PROGPATH}/isolinux.cfg" "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.cfg"
   chmod u+w "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.bin"
 
   echo "Running mkisofs ..."
