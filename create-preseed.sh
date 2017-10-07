@@ -13,7 +13,7 @@ AUTHOR="Patrik Dufresne"
 DOMAIN="patrikdufresne.com"
 MASK="255.255.255.0"
 GW="192.168.14.1"
-DEBIAN="jessie"
+DEBIAN="stretch"
 
 # location, location, location
 FOLDER_BASE="/tmp"
@@ -75,6 +75,9 @@ if [ "x$DEBIAN" == "xwheezy" ]; then
 elif [ "x$DEBIAN" == "xjessie" ]; then
   ISO_URL="http://cdimage.debian.org/mirror/cdimage/archive/8.9.0/amd64/iso-cd/debian-8.9.0-amd64-CD-1.iso"
   ISO_MD5="be1ec9943ded8d974d535c44230394fe"
+elif [ "x$DEBIAN" == "xstretch" ]; then
+  ISO_URL="http://cdimage.debian.org/mirror/cdimage/archive/9.0.0/amd64/iso-cd/debian-9.0.0-amd64-netinst.iso"
+  ISO_MD5="83253a530270e46a5d6e66daf3431c33"
 fi
 
 # Env option: Use custom preseed.cfg or default
