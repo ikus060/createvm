@@ -157,9 +157,6 @@ if [ ! -e "${FOLDER_ISO}/${ISO_CUSTOM_FILENAME}" ]; then
     gunzip -c "${FOLDER_ISO_CUSTOM}/install/initrd.gz.org" | cpio -id || true
   fi
   cd "${FOLDER_BASE}"
-  if [ "${PRESEED}" != "${DEFAULT_PRESEED}" ] ; then
-    echo "Using custom preseed file ${PRESEED}"
-  fi
   cp "${PRESEED}" "${FOLDER_ISO_INITRD}/preseed.cfg"
   #rm "${PRESEED}"
   cd "${FOLDER_ISO_INITRD}"
