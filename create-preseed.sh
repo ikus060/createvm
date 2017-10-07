@@ -15,8 +15,8 @@ GW="192.168.14.1"
 DEBIAN="jessie"
 
 # location, location, location
-FOLDER_BASE=$(pwd)
-FOLDER_ISO="${FOLDER_BASE}/iso"
+FOLDER_BASE="/tmp"
+FOLDER_ISO="/var/lib/vz/template/iso/"
 FOLDER_BUILD="${FOLDER_BASE}/build"
 FOLDER_ISO_CUSTOM="${FOLDER_BUILD}/iso/custom"
 FOLDER_ISO_INITRD="${FOLDER_BUILD}/iso/initrd"
