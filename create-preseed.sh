@@ -76,8 +76,8 @@ elif [ "x$DEBIAN" == "xjessie" ]; then
   ISO_URL="http://cdimage.debian.org/mirror/cdimage/archive/8.9.0/amd64/iso-cd/debian-8.9.0-amd64-CD-1.iso"
   ISO_MD5="be1ec9943ded8d974d535c44230394fe"
 elif [ "x$DEBIAN" == "xstretch" ]; then
-  ISO_URL="https://cdimage.debian.org/mirror/cdimage/archive/9.0.0/amd64/iso-dvd/debian-9.0.0-amd64-DVD-1.iso"
-  ISO_MD5="b894f1e8ebf3065a488b6c01a742cf4e"
+  ISO_URL="http://cdimage.debian.org/mirror/cdimage/archive/9.0.0/amd64/iso-cd/debian-9.0.0-amd64-netinst.iso"
+  ISO_MD5="83253a530270e46a5d6e66daf3431c33"
 fi
 
 # Env option: Use custom preseed.cfg or default
