@@ -9,30 +9,19 @@ VERSION="1.0"
 AUTHOR="Patrik Dufresne"
 
 # Define default arguments value
-VM_GUI=0
-VRDE=1
-VRDE_PORTS=9000-9010
-MEMORY="512" # 512MiB
-DISK="8192" # 8GiB
-BOX=""
-DOMAIN=""
-IP=""
+DOMAIN="patrikdufresne.com"
 MASK="255.255.255.0"
 GW="192.168.14.1"
 DEBIAN="jessie"
-LATE_CMD_ARGS=""
 
 # location, location, location
 FOLDER_BASE=$(pwd)
-#FOLDER_ISO="${FOLDER_BASE}/iso"
-FOLDER_ISO="$HOME/iso"
+FOLDER_ISO="${FOLDER_BASE}/iso"
 FOLDER_BUILD="${FOLDER_BASE}/build"
-#FOLDER_VBOX="${FOLDER_BUILD}/vbox"
-FOLDER_VBOX="$HOME/VirtualBox VMs"
 FOLDER_ISO_CUSTOM="${FOLDER_BUILD}/iso/custom"
 FOLDER_ISO_INITRD="${FOLDER_BUILD}/iso/initrd"
 
-RESULT=`getopt --name "$SCRIPT" --options "h,b:,i:,d:" --longoptions "help,box:,domain:,ip:,mask:,gw:,memory:,disk:,dest:,iso:,debian:,ldap:" -- "$@"`
+RESULT=`getopt --name "$SCRIPT" --options "h" --longoptions "help,iso:,debian:" -- "$@"`
 eval set -- "$RESULT"
 while [ $# -gt 0 ] ; do
   case "$1" in
@@ -40,52 +29,16 @@ while [ $# -gt 0 ] ; do
 	    printf "$PROGNAME version $VERSION by $AUTHOR
 Used to create virtual machine.
   -h, --help            display this message.
-  -b, --box=hostname    the virtual box name.
-  --domain=domain       the domain name (default: none).
-  -i, --ip=address      the IP address to be set.
-  --mask=mask           the network mask. (default: $MASK)
-  --gateway=gateway     the gateway. (default: $GW)
-  --memory=size         the memory size in MiB. (default: $MEMORY)
-  --disk=size           the disk size in MiB. (default: $DISK)
-  -d, --dest=folder     the virtual box destination (default: $FOLDER_VBOX)
   --iso=folder          where to download iso files (default: $FOLDER_ISO)
   --debian=version      the debian version: wheezy or jessie (default: $DEBIAN)
-  --ldap                activate LDAP authentication
 "
       exit 0;;
-    -b | --box)
-      shift
-      BOX=$1;;
-     --domain)
-      shift
-      DOMAIN=$1;;
-     -i | --ip)
-      shift
-      IP=$1;;
-     --mask)
-      shift
-      MASK=$1;;
-     --gw)
-      shift
-      GW=$1;;
-     --memory)
-      shift
-      MEMORY=$1;;
-     --disk)
-      shift
-      DISK=$1;;
-     -d | --dest)
-      shift
-      FOLDER_VBOX=$1;;
      --iso)
       shift
       FOLDER_ISO=$1;;
      --debian)
       shift
       DEBIAN=$1;;
-     --ldap)
-      shift
-      LATE_CMD_ARGS="$1";;
     --)
       shift
       break;;
@@ -95,18 +48,10 @@ Used to create virtual machine.
   shift
 done
 
-[ ! -z "$BOX" ] || { echo >&2 "ERROR: --box not define.  Aborting."; exit 1; }
-[ ! -z "$IP" ] || { echo >&2 "ERROR: --ip not define.  Aborting."; exit 1; }
-
-
 # make sure we have dependencies
-hash vagrant 2>/dev/null || { echo >&2 "ERROR: vagrant not found.  Aborting."; exit 1; }
-hash VBoxManage 2>/dev/null || { echo >&2 "ERROR: VBoxManage not found.  Aborting."; exit 1; }
 hash 7z 2>/dev/null || { echo >&2 "ERROR: 7z not found. Aborting."; exit 1; }
 hash curl 2>/dev/null || { echo >&2 "ERROR: curl not found. Aborting."; exit 1; }
 hash cpio 2>/dev/null || { echo >&2 "ERROR: cpio not found. Aborting."; exit 1; }
-
-VBOX_VERSION="$(VBoxManage --version)"
 
 if hash mkisofs 2>/dev/null; then
   MKISOFS="$(which mkisofs)"
@@ -124,45 +69,19 @@ set -o errexit
 # Configurations
 
 if [ "x$DEBIAN" == "xwheezy" ]; then
-  ISO_URL="http://cdimage.debian.org/mirror/cdimage/archive/7.8.0/amd64/iso-cd/debian-7.8.0-amd64-CD-1.iso"
-  ISO_MD5="0e3d2e7bc3cd7c97f76a4ee8fb335e43"
+  ISO_URL="http://cdimage.debian.org/mirror/cdimage/archive/7.11.0/amd64/iso-cd/debian-7.11.0-amd64-CD-1.iso"
+  ISO_MD5="51853a6fea6f2b2e405956bd713553cd"
 elif [ "x$DEBIAN" == "xjessie" ]; then
-  ISO_URL="http://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-8.6.0-amd64-CD-1.iso"
-  ISO_MD5="a4ea44bf44f6bf1a45ab37c58ba3c2e8"
+  ISO_URL="http://cdimage.debian.org/mirror/cdimage/archive/8.9.0/amd64/iso-cd/debian-8.9.0-amd64-CD-1.iso"
+  ISO_MD5="be1ec9943ded8d974d535c44230394fe"
 fi
-
-# Env option: Use headless mode or GUI
-VM_GUI="${VM_GUI:-}"
-if [ "x${VM_GUI}" == "xyes" ] || [ "x${VM_GUI}" == "x1" ]; then
-  STARTVM="VBoxManage startvm ${BOX}"
-else
-  STARTVM="VBoxManage startvm ${BOX} --type headless"
-fi
-STOPVM="VBoxManage controlvm ${BOX} poweroff"
 
 # Env option: Use custom preseed.cfg or default
 DEFAULT_PRESEED="preseed.cfg"
 PRESEED="${PRESEED:-"$DEFAULT_PRESEED"}"
 cp "$PRESEED" "/tmp/$$.preseed.cfg"
 PRESEED="/tmp/$$.preseed.cfg"
-sed -i -e "s/\${hostname}/$BOX/" "$PRESEED"
-sed -i -e "s/\${domain}/$DOMAIN/" "$PRESEED"
-sed -i -e "s/\${ip}/$IP/" "$PRESEED"
-sed -i -e "s/\${mask}/$MASK/" "$PRESEED"
-sed -i -e "s/\${gw}/$GW/" "$PRESEED"
 sed -i -e "s/\${debian}/$DEBIAN/" "$PRESEED"
-sed -i -e "s/\${extra}/$LATE_CMD_ARGS/" "$PRESEED"
-
-# Env option: Use custom late_command.sh or default
-DEFAULT_LATE_CMD="${FOLDER_BASE}/late_command.sh"
-LATE_CMD="${LATE_CMD:-"$DEFAULT_LATE_CMD"}"
-
-# Parameter changes from 4.2 to 4.3
-if [[ "$VBOX_VERSION" < 4.3 ]]; then
-  PORTCOUNT="--sataportcount 1"
-else
-  PORTCOUNT="--portcount 1"
-fi
 
 if [ "$OSTYPE" = "linux-gnu" ]; then
   MD5="md5sum"
@@ -173,14 +92,6 @@ else
 fi
 
 # start with a clean slate
-if VBoxManage list runningvms | grep "${BOX}" >/dev/null 2>&1; then
-  echo "Stopping vm ..."
-  ${STOPVM}
-fi
-if VBoxManage showvminfo "${BOX}" >/dev/null 2>&1; then
-  echo "Unregistering vm ..."
-  VBoxManage unregistervm "${BOX}" --delete
-fi
 if [ -d "${FOLDER_BUILD}" ]; then
   echo "Cleaning build directory ..."
   chmod -R u+w "${FOLDER_BUILD}"
@@ -196,7 +107,6 @@ fi
 # Setting things back up again
 mkdir -p "${FOLDER_ISO}"
 mkdir -p "${FOLDER_BUILD}"
-mkdir -p "${FOLDER_VBOX}"
 mkdir -p "${FOLDER_ISO_CUSTOM}"
 mkdir -p "${FOLDER_ISO_INITRD}"
 
@@ -266,11 +176,6 @@ if [ ! -e "${FOLDER_ISO}/${ISO_CUSTOM_FILENAME}" ]; then
   cp isolinux.cfg "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.cfg"
   chmod u+w "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.bin"
 
-  # add late_command script
-  echo "Add late_command script ..."
-  chmod u+w "${FOLDER_ISO_CUSTOM}"
-  cp "${LATE_CMD}" "${FOLDER_ISO_CUSTOM}/late_command.sh"
-
   echo "Running mkisofs ..."
   "$MKISOFS" -r -V "Custom Debian Install CD" \
     -cache-inodes -quiet \
@@ -278,87 +183,6 @@ if [ ! -e "${FOLDER_ISO}/${ISO_CUSTOM_FILENAME}" ]; then
     -c isolinux/boot.cat -no-emul-boot \
     -boot-load-size 4 -boot-info-table \
     -o "${FOLDER_ISO}/${ISO_CUSTOM_FILENAME}" "${FOLDER_ISO_CUSTOM}"
-fi
-
-echo "Creating VM Box..."
-# create virtual machine
-if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>&1; then
-  VBoxManage createvm \
-    --name "${BOX}" \
-    --ostype Debian_64 \
-    --register \
-    --basefolder "${FOLDER_VBOX}"
-
-  VBoxManage modifyvm "${BOX}" \
-    --memory "$MEMORY" \
-    --boot1 dvd \
-    --boot2 disk \
-    --boot3 none \
-    --boot4 none \
-    --vram 12 \
-    --pae off \
-    --rtcuseutc on
-
-  VBoxManage storagectl "${BOX}" \
-    --name "IDE Controller" \
-    --add ide \
-    --controller PIIX4 \
-    --hostiocache on
-
-  VBoxManage storageattach "${BOX}" \
-    --storagectl "IDE Controller" \
-    --port 1 \
-    --device 0 \
-    --type dvddrive \
-    --medium "${FOLDER_ISO}/${ISO_CUSTOM_FILENAME}"
-
-  VBoxManage storagectl "${BOX}" \
-    --name "SATA Controller" \
-    --add sata \
-    --controller IntelAhci \
-    $PORTCOUNT \
-    --hostiocache off
-
-  VBoxManage createhd \
-    --filename "${FOLDER_VBOX}/${BOX}/${BOX}.vdi" \
-    --size "$DISK"
-
-  VBoxManage storageattach "${BOX}" \
-    --storagectl "SATA Controller" \
-    --port 0 \
-    --device 0 \
-    --type hdd \
-    --medium "${FOLDER_VBOX}/${BOX}/${BOX}.vdi"
-
-  # Enable remote desktop if required
-  VRDE="${VRDE:-}"
-  if [ "x${VRDE}" == "xyes" ] || [ "x${VRDE}" == "x1" ]; then
-    VBoxManage modifyvm "${BOX}" \
-      --vrde on
-    VBoxManage modifyvm "${BOX}" \
-      --vrdeport "$VRDE_PORTS"
-  fi
-
-  # Configure network as bridge.
-  VBoxManage modifyvm "${BOX}" \
-    --nic1 bridged --nictype2 82540EM --bridgeadapter1 'bond0'
-
-  ${STARTVM}
-
-  echo -n "Waiting for installer to finish "
-  while VBoxManage list runningvms | grep "${BOX}" >/dev/null; do
-    sleep 20
-    echo -n "."
-  done
-  echo ""
-
-  # Detach ISO
-  VBoxManage storageattach "${BOX}" \
-    --storagectl "IDE Controller" \
-    --port 1 \
-    --device 0 \
-    --type dvddrive \
-    --medium emptydrive
 fi
 
 # references:
