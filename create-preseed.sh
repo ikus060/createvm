@@ -5,7 +5,7 @@
 # Modify: Patrik Dufresne
 #
 declare -rx PROGNAME=${0##*/}
-declare -rx PROGPATH=${0%/*}/
+declare -rx PROGPATH="$(realpath "${0%/*}")"
 VERSION="1.0"
 AUTHOR="Patrik Dufresne"
 
@@ -190,3 +190,4 @@ fi
 # http://blog.ericwhite.ca/articles/2009/11/unattended-debian-lenny-install/
 # http://docs-v1.vagrantup.com/v1/docs/base_boxes.html
 # http://www.debian.org/releases/stable/example-preseed.txt
+
