@@ -11,6 +11,7 @@ AUTHOR="Patrik Dufresne"
 # Define default arguments value
 VM_GUI=0
 VRDE=1
+VRDE_PORTS=9000-9010
 MEMORY="512" # 512MiB
 DISK="8192" # 8GiB
 BOX=""
@@ -19,6 +20,7 @@ IP=""
 MASK="255.255.255.0"
 GW="192.168.14.1"
 DEBIAN="jessie"
+LATE_CMD_ARGS=""
 
 # location, location, location
 FOLDER_BASE=$(pwd)
@@ -30,7 +32,7 @@ FOLDER_VBOX="$HOME/VirtualBox VMs"
 FOLDER_ISO_CUSTOM="${FOLDER_BUILD}/iso/custom"
 FOLDER_ISO_INITRD="${FOLDER_BUILD}/iso/initrd"
 
-RESULT=`getopt --name "$SCRIPT" --options "h,b:,i:,d:" --longoptions "help,box:,domain:,ip:,mask:,gw:,memory:,disk:,dest:,iso:,debian:" -- "$@"`
+RESULT=`getopt --name "$SCRIPT" --options "h,b:,i:,d:" --longoptions "help,box:,domain:,ip:,mask:,gw:,memory:,disk:,dest:,iso:,debian:,ldap:" -- "$@"`
 eval set -- "$RESULT"
 while [ $# -gt 0 ] ; do
   case "$1" in
@@ -48,6 +50,7 @@ Used to create virtual machine.
   -d, --dest=folder     the virtual box destination (default: $FOLDER_VBOX)
   --iso=folder          where to download iso files (default: $FOLDER_ISO)
   --debian=version      the debian version: wheezy or jessie (default: $DEBIAN)
+  --ldap                activate LDAP authentication
 "
       exit 0;;
     -b | --box)
@@ -80,6 +83,9 @@ Used to create virtual machine.
      --debian)
       shift
       DEBIAN=$1;;
+     --ldap)
+      shift
+      LATE_CMD_ARGS="$1";;
     --)
       shift
       break;;
@@ -113,7 +119,7 @@ fi
 
 set -o nounset
 set -o errexit
-set -o xtrace
+#set -o xtrace
 
 # Configurations
 
@@ -121,8 +127,8 @@ if [ "x$DEBIAN" == "xwheezy" ]; then
   ISO_URL="http://cdimage.debian.org/mirror/cdimage/archive/7.8.0/amd64/iso-cd/debian-7.8.0-amd64-CD-1.iso"
   ISO_MD5="0e3d2e7bc3cd7c97f76a4ee8fb335e43"
 elif [ "x$DEBIAN" == "xjessie" ]; then
-  ISO_URL="http://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-8.1.0-amd64-CD-1.iso"
-  ISO_MD5="4af143814e0b0ab623289222eddb280d"
+  ISO_URL="http://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-8.6.0-amd64-CD-1.iso"
+  ISO_MD5="a4ea44bf44f6bf1a45ab37c58ba3c2e8"
 fi
 
 # Env option: Use headless mode or GUI
@@ -145,6 +151,7 @@ sed -i -e "s/\${ip}/$IP/" "$PRESEED"
 sed -i -e "s/\${mask}/$MASK/" "$PRESEED"
 sed -i -e "s/\${gw}/$GW/" "$PRESEED"
 sed -i -e "s/\${debian}/$DEBIAN/" "$PRESEED"
+sed -i -e "s/\${extra}/$LATE_CMD_ARGS/" "$PRESEED"
 
 # Env option: Use custom late_command.sh or default
 DEFAULT_LATE_CMD="${FOLDER_BASE}/late_command.sh"
@@ -328,6 +335,8 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>&1; then
   if [ "x${VRDE}" == "xyes" ] || [ "x${VRDE}" == "x1" ]; then
     VBoxManage modifyvm "${BOX}" \
       --vrde on
+    VBoxManage modifyvm "${BOX}" \
+      --vrdeport "$VRDE_PORTS"
   fi
 
   # Configure network as bridge.

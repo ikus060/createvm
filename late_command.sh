@@ -38,3 +38,4 @@ sed -i 's/^deb cdrom/# deb cdrom/' /etc/apt/sources.list
 # clean up
 apt-get update
 apt-get clean
+
