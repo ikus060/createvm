@@ -68,7 +68,6 @@ set -o errexit
 #set -o xtrace
 
 # Configurations
-
 if [ "x$DEBIAN" == "xwheezy" ]; then
   ISO_URL="http://cdimage.debian.org/mirror/cdimage/archive/7.11.0/amd64/iso-cd/debian-7.11.0-amd64-CD-1.iso"
   ISO_MD5="51853a6fea6f2b2e405956bd713553cd"
@@ -81,10 +80,8 @@ elif [ "x$DEBIAN" == "xstretch" ]; then
 fi
 
 # Env option: Use custom preseed.cfg or default
-DEFAULT_PRESEED="preseed.cfg"
-PRESEED="${PRESEED:-"$DEFAULT_PRESEED"}"
-cp "$PRESEED" "/tmp/$$.preseed.cfg"
 PRESEED="/tmp/$$.preseed.cfg"
+cp "$PROGPATH/preseed.cfg" "$PRESEED"
 sed -i -e "s/\${debian}/$DEBIAN/" "$PRESEED"
 
 if [ "$OSTYPE" = "linux-gnu" ]; then
